@@ -1,0 +1,139 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>wolcen</groupId>
+    <artifactId>salarybillsender</artifactId>
+    <version>1.7.3</version>
+    <name>salarybillsender</name>
+    <description>salary bill sender by mail</description>
+
+  
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
+    </properties>
+
+   <dependencies>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.14</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-email</groupId>
+            <artifactId>commons-email</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.jexcelapi</groupId>
+            <artifactId>jxl</artifactId>
+            <version>2.6.12</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <compilerArguments>
+                        <verbose/>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+           <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <addMavenDescriptor>true</addMavenDescriptor>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <useUniqueVersions>false</useUniqueVersions>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>wolcen.salarybillsender.SendMails</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Built-At>${maven.build.timestamp}</Built-At>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.build.directory}/javapackager/src"/>
+                                <mkdir dir="${project.build.directory}/javapackager/out"/>
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                      todir="${project.build.directory}/javapackager/src"/>
+                                <exec executable="javapackager" dir="${project.build.directory}/javapackager">
+                                    <arg value="-deploy"/>
+                                    <arg value="-native"/>
+                                    <arg value="image"/>
+                                    <arg value="-appclass"/>
+                                    <arg value="wolcen.salarybillsender.SendMails"/>
+                                    <arg value="-srcdir"/>
+                                    <arg value="${project.build.directory}/javapackager/src"/>
+                                    <arg value="-outdir"/>
+                                    <arg value="${project.build.directory}/javapackager/out"/>
+                                    <arg value="-outfile"/>
+                                    <arg value="${project.build.finalName}"/>
+                                    <arg value="-name"/>
+                                    <arg value="${project.build.finalName}"/>
+                                </exec>
+                                <zip destfile="${project.build.directory}/${project.build.finalName}-bundles.zip" >
+                                    <zipfileset dir="${project.build.directory}/javapackager/out/bundles" >
+                                    </zipfileset>
+                                    <zipfileset dir="${project.basedir}" prefix="${project.build.finalName}">
+                                        <include name="README.pdf"/>
+                                    </zipfileset>
+                                </zip>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>6</source>
+                    <target>6</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
